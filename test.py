@@ -18,6 +18,7 @@ if __name__ == "__main__":
     parser = ArgumentParser(description='Model testing')
     parser.add_argument('-m', '--nomodel', action='store_true', help='Do not perform modeling?')
     parser.add_argument('-p', '--preprocess', action='store_true', help='Preprocess by pixelwise mean / std centering')
+    parser.add_argument('-d', '--nodisplay', action='store_true', help='Turn off visual display')
     args = parser.parse_args()
 
     x_size = 32
@@ -60,12 +61,13 @@ if __name__ == "__main__":
         x_test /= (x_train_std + 1e-7)
 
     # plot data
-    for idx in range(25):
-        plt.subplot(5,10,2*idx+1)
-        plt.imshow(x_train[idx,:,:,0])
-        plt.subplot(5,10,2*idx+2)
-        plt.imshow(y_train[idx,:,:,0])
-    plt.show()
+    if(not args.nodisplay):
+        for idx in range(25):
+            plt.subplot(5,10,2*idx+1)
+            plt.imshow(x_train[idx,:,:,0])
+            plt.subplot(5,10,2*idx+2)
+            plt.imshow(y_train[idx,:,:,0])
+        plt.show()
 
     if(not args.nomodel):
         loss = cce_flatt(void_class, None)
@@ -86,8 +88,9 @@ if __name__ == "__main__":
             print(y_test[sample,:,:,0])
             print(y_pred[sample,:,:,0])
 
-        plt.subplot(1,2,1)
-        plt.imshow(y_test[-1,:,:,0])
-        plt.subplot(1,2,2)
-        plt.imshow(y_pred[-1,:,:,0])
-        plt.show()
+        if(not args.nodisplay):
+            plt.subplot(1,2,1)
+            plt.imshow(y_test[-1,:,:,0])
+            plt.subplot(1,2,2)
+            plt.imshow(y_pred[-1,:,:,0])
+            plt.show()
