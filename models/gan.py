@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import numpy as np
 import random
@@ -6,10 +8,10 @@ import keras.models as kmodels
 from keras import backend as K
 from keras.optimizers import Adam
 from keras.layers import Input
-from keras.utils.visualize_util import plot
-from model import Model
-from generator import build_generator
-from discriminator import build_discriminator
+from keras.utils.vis_utils import plot_model
+from .model import Model
+from .generator import build_generator
+from .discriminator import build_discriminator
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
@@ -149,7 +151,7 @@ class GAN(Model):
         n_tot = y.shape[0]
         n_rig = (diff == 0).sum()
         acc = n_rig*100.0/n_tot
-        print "Accuracy: %0.02f pct (%d of %d) right" % (acc, n_rig, n_tot)
+        print ("Accuracy: %0.02f pct (%d of %d) right" % (acc, n_rig, n_tot))
 
     def plot_loss(self, losses):
         # display.clear_output(wait=True)

@@ -124,7 +124,7 @@ def main():
     shared_dataset_path = os.path.join(shared_path, 'Datasets')
     experiments_path = os.path.join(local_path, getuser(), 'Experiments')
     shared_experiments_path = os.path.join(shared_path, getuser(), 'Experiments')
-    usr_path = os.path.join('/home/', getuser())
+    usr_path = os.path.join(os.path.expanduser("~"), getuser())
 
     # Load configuration files
     configuration = Configuration(arguments.config_path, arguments.exp_name,

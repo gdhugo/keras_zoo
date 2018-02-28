@@ -659,9 +659,8 @@ class ImageDataGenerator(object):
             # reject regions that are too small
             y = y[y[:,3]>0.005]
             y = y[y[:,4]>0.005]
-	    if y.shape[0] == 0:
-                warnings.warn('DirectoryIterator: your data augmentation strategy '
-                              'is is moving all the boxes out of the image ')
+        if y.shape[0] == 0:
+            warnings.warn('DirectoryIterator: your data augmentation strategy is is moving all the boxes out of the image ')
         # TODO:
         # channel-wise normalization
         # barrel/fisheye

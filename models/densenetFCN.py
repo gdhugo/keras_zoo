@@ -10,7 +10,7 @@ from keras.layers.core import Activation, Dropout, Dense
 from keras.layers import merge
 from keras.regularizers import l2
 from layers.deconv import Deconvolution2D
-from keras import initializations
+from keras import initializers
 import sys
 sys.setrecursionlimit(10000)
 

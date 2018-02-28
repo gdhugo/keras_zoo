@@ -2,9 +2,9 @@ from __future__ import absolute_import
 import functools
 
 from keras import backend as K
-from keras import activations, initializations, regularizers, constraints
+from keras import activations, initializers, regularizers, constraints
 from keras.engine import Layer, InputSpec
-from keras.utils.np_utils import conv_output_length
+from keras.utils.conv_utils import conv_output_length
 
 import tensorflow as tf
 
@@ -90,7 +90,7 @@ class YOLOConvolution2D(Layer):
         self.nb_filter = nb_filter
         self.nb_row = nb_row
         self.nb_col = nb_col
-        self.init = initializations.get(init)
+        self.init = initializers.get(init)
         self.activation = activations.get(activation)
         self.border_mode = border_mode
         self.subsample = tuple(subsample)
@@ -110,8 +110,8 @@ class YOLOConvolution2D(Layer):
         self.initial_weights = weights
         # added for BatchNormalization
         self.supports_masking = True
-        self.beta_init = initializations.get(beta_init)
-        self.gamma_init = initializations.get(gamma_init)
+        self.beta_init = initializers.get(beta_init)
+        self.gamma_init = initializers.get(gamma_init)
         self.epsilon = epsilon
         self.momentum = momentum
         self.gamma_regularizer = regularizers.get(gamma_regularizer)
@@ -267,7 +267,7 @@ class Reorg(Layer):
     """ This class implements REORG layer as in Darknet framework.
     When we bring finer grained features in from earlier in the network, the reorg layer
     makes these features match the feature map size at the later layer.
-    E.g. if the end feature map is 13x13 and the feature map from earlier is 26x26x512, 
+    E.g. if the end feature map is 13x13 and the feature map from earlier is 26x26x512,
     the reorg layer maps the 26x26x512 feature map onto a 13x13x2048 feature map so that
     it can be concatenated with the feature maps at 13x13 resolution.
     The Darknet reorg layer does not only perform a simple reshape, but instead slices
@@ -295,4 +295,3 @@ class Reorg(Layer):
 
     def get_output_shape_for(self, input_shape):
         return (input_shape[0], input_shape[1]*4, input_shape[2]/2, input_shape[3]/2)
-

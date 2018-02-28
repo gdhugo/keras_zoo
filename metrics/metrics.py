@@ -54,6 +54,54 @@ def cce_flatt(void_class, weights_class):
         return K.mean(out)  # b01 -> b,01
     return categorical_crossentropy_flatt
 
+def jaccard_distance(y_true, y_pred, smooth=100):
+    """Jaccard distance for semantic segmentation, also known as the intersection-over-union loss.
+    This loss is useful when you have unbalanced numbers of pixels within an image
+    because it gives all classes equal weight. However, it is not the defacto
+    standard for image segmentation.
+    For example, assume you are trying to predict if each pixel is cat, dog, or background.
+    You have 80% background pixels, 10% dog, and 10% cat. If the model predicts 100% background
+    should it be be 80% right (as with categorical cross entropy) or 30% (with this loss)?
+    The loss has been modified to have a smooth gradient as it converges on zero.
+    This has been shifted so it converges on 0 and is smoothed to avoid exploding
+    or disappearing gradient.
+    Jaccard = (|X & Y|)/ (|X|+ |Y| - |X & Y|)
+            = sum(|A*B|)/(sum(|A|)+sum(|B|)-sum(|A*B|))
+    # References
+    Csurka, Gabriela & Larlus, Diane & Perronnin, Florent. (2013).
+    What is a good evaluation measure for semantic segmentation?.
+    IEEE Trans. Pattern Anal. Mach. Intell.. 26. . 10.5244/C.27.32.
+    https://en.wikipedia.org/wiki/Jaccard_index
+    """
+    intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
+    sum_ = K.sum(K.abs(y_true) + K.abs(y_pred), axis=-1)
+    jac = (intersection + smooth) / (sum_ - intersection + smooth)
+    return (1 - jac) * smooth
+
+def categorical_crossentropy(y_true, y_pred):
+    '''Expects a binary class matrix instead of a vector of scalar classes.
+    '''
+    if dim_ordering == 'th':
+        y_pred = K.permute_dimensions(y_pred, (0, 2, 3, 1))
+    shp_y_pred = K.shape(y_pred)
+    y_pred = K.reshape(y_pred, (shp_y_pred[0]*shp_y_pred[1]*shp_y_pred[2],
+                       shp_y_pred[3]))  # go back to b01,c
+    # shp_y_true = K.shape(y_true)
+
+    if dim_ordering == 'th':
+        y_true = K.cast(K.flatten(y_true), 'int32')  # b,01 -> b01
+    else:
+        y_true = K.cast(K.flatten(y_true), 'int32')  # b,01 -> b01
+
+    if dim_ordering == 'th':
+        y_true = T.extra_ops.to_one_hot(y_true, nb_class=y_pred.shape[-1])
+    else:
+        y_true = tf.one_hot(y_true, K.shape(y_pred)[-1], on_value=1, off_value=0, axis=None, dtype=None, name=None)
+        y_true = K.cast(y_true, 'float32')  # b,01 -> b01
+    out = K.categorical_crossentropy(y_pred, y_true)
+
+    return K.mean(out)  # b01 -> b,01
+
 
 def IoU(n_classes, void_labels):
     def IoU_flatt(y_true, y_pred):
@@ -103,7 +151,7 @@ def IoU(n_classes, void_labels):
         else:
             accuracy = K.sum(sum_I) / tf.reduce_sum(tf.cast(not_void, 'float32'))
         out['acc'] = accuracy
-        return out
+        return accuracy #out
     return IoU_flatt
 
 
@@ -233,7 +281,7 @@ def YOLOMetrics(input_shape=(3,640,640),num_classes=45,priors=[[0.25,0.25], [0.5
       intersect_wh = tf.maximum(intersect_wh, 0.0)
       intersect = tf.multiply(intersect_wh[:,:,:,0], intersect_wh[:,:,:,1])
 
-      # calculate the best IOU and metrics 
+      # calculate the best IOU and metrics
       iou = tf.truediv(intersect, _areas + area_pred - intersect)
       best_ious     = tf.reduce_max(iou, [2], True)
       recall        = tf.reduce_sum(tf.to_float(tf.greater(best_ious,0.5)), [1])
@@ -242,8 +290,6 @@ def YOLOMetrics(input_shape=(3,640,640),num_classes=45,priors=[[0.25,0.25], [0.5
       num_gt_obj    = tf.reduce_sum(tf.to_float(tf.greater(gt_obj_areas,tf.zeros_like(gt_obj_areas))), [1])
       avg_iou       = tf.truediv(sum_best_ious, num_gt_obj)
       avg_recall    = tf.truediv(recall, num_gt_obj)
- 
+
       return {'avg_iou':tf.reduce_mean(avg_iou), 'avg_recall':tf.reduce_mean(avg_recall)}
   return _YOLOMetrics
-
-

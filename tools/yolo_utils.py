@@ -23,7 +23,7 @@ def yolo_build_gt_batch(batch_gt,image_shape,num_classes,num_priors=5):
     for i,gt in enumerate(batch_gt):
         if gt.shape[0] == 0:
           # if there are no objects we'll get NaNs on YOLOLoss, set everything to one!
-          # TODO check if the following line harms learning in case of 
+          # TODO check if the following line harms learning in case of
           #      having lots of images with no objects
           batch_y[i] = np.ones((h*w,b,c+4+1+1+2+2))
           continue
@@ -111,91 +111,87 @@ def _softmax(x):
     return out
 
 def yolo_postprocess_net_out(net_out, anchors, labels, threshold, nms_threshold):
-	C = len(labels) 
-        B = len(anchors)
-        net_out = np.transpose(net_out, (1,2,0))
-	H,W = net_out.shape[:2]
-	net_out = net_out.reshape([H, W, B, -1])
+    C = len(labels)
+    B = len(anchors)
+    net_out = np.transpose(net_out, (1,2,0))
+    H,W = net_out.shape[:2]
+    net_out = net_out.reshape([H, W, B, -1])
 
-	boxes = list()
-	for row in range(H):
-		for col in range(W):
-			for b in range(B):
-				bx = BoundBox(C)
-				bx.x, bx.y, bx.w, bx.h, bx.c = net_out[row, col, b, :5]
-				bx.c = expit(bx.c)
-				bx.x = (col + expit(bx.x)) / W
-				bx.y = (row + expit(bx.y)) / H
-				bx.w = math.exp(bx.w) * anchors[b][0] / W
-				bx.h = math.exp(bx.h) * anchors[b][1] / H
-				classes = net_out[row, col, b, 5:]
-				bx.probs = _softmax(classes) * bx.c
-				bx.probs *= bx.probs > threshold
-				boxes.append(bx)
+    boxes = list()
+    for row in range(H):
+    	for col in range(W):
+    		for b in range(B):
+    			bx = BoundBox(C)
+    			bx.x, bx.y, bx.w, bx.h, bx.c = net_out[row, col, b, :5]
+    			bx.c = expit(bx.c)
+    			bx.x = (col + expit(bx.x)) / W
+    			bx.y = (row + expit(bx.y)) / H
+    			bx.w = math.exp(bx.w) * anchors[b][0] / W
+    			bx.h = math.exp(bx.h) * anchors[b][1] / H
+    			classes = net_out[row, col, b, 5:]
+    			bx.probs = _softmax(classes) * bx.c
+    			bx.probs *= bx.probs > threshold
+    			boxes.append(bx)
 
-	# non max suppress boxes
-	for c in range(C):
-		for i in range(len(boxes)):
-			boxes[i].class_num = c
-		boxes = sorted(boxes, key = prob_compare)
-		for i in range(len(boxes)):
-			boxi = boxes[i]
-			if boxi.probs[c] == 0: continue
-			for j in range(i + 1, len(boxes)):
-				boxj = boxes[j]
-				if box_iou(boxi, boxj) >= nms_threshold:
-					boxes[j].probs[c] = 0.
+    # non max suppress boxes
+    for c in range(C):
+    	for i in range(len(boxes)):
+    		boxes[i].class_num = c
+    	boxes = sorted(boxes, key = prob_compare)
+    	for i in range(len(boxes)):
+    		boxi = boxes[i]
+    		if boxi.probs[c] == 0: continue
+    		for j in range(i + 1, len(boxes)):
+    			boxj = boxes[j]
+    			if box_iou(boxi, boxj) >= nms_threshold:
+    				boxes[j].probs[c] = 0.
 
-	return boxes
+    return boxes
 
 def yolo_draw_detections(boxes, im, anchors, labels, threshold, nms_threshold):
 
-        def get_color(c,x,max):
-          colors = ( (1,0,1), (0,0,1),(0,1,1),(0,1,0),(1,1,0),(1,0,0) )
-          ratio = (float(x)/max)*5
-          i = np.floor(ratio)
-          j = np.ceil(ratio)
-          ratio -= i
-          r = (1-ratio) * colors[int(i)][int(c)] + ratio*colors[int(j)][int(c)]
-          return r*255
+    def get_color(c,x,max):
+        colors = ( (1,0,1), (0,0,1),(0,1,1),(0,1,0),(1,1,0),(1,0,0) )
+        ratio = (float(x)/max)*5
+        i = np.floor(ratio)
+        j = np.ceil(ratio)
+        ratio -= i
+        r = (1-ratio) * colors[int(i)][int(c)] + ratio*colors[int(j)][int(c)]
+        return r*255
 
-	if type(im) is not np.ndarray:
-		imgcv = cv2.imread(im)
-	else: imgcv = im
-	h, w, _ = imgcv.shape
-	for b in boxes:
-		max_indx = np.argmax(b.probs)
-		max_prob = b.probs[max_indx]
-		label = 'object' * int(len(labels) < 2)
-		label += labels[max_indx] * int(len(labels)>1)
-		if max_prob > threshold:
-			left  = int ((b.x - b.w/2.) * w)
-			right = int ((b.x + b.w/2.) * w)
-			top   = int ((b.y - b.h/2.) * h)
-			bot   = int ((b.y + b.h/2.) * h)
-			if left  < 0    :  left = 0
-			if right > w - 1: right = w - 1
-			if top   < 0    :   top = 0
-			if bot   > h - 1:   bot = h - 1
-			thick = int((h+w)/300)
-			mess = '{}'.format(label)
-                        offset = max_indx*123457 % len(labels)
-                        color = (get_color(2,offset,len(labels)),
-                                 get_color(1,offset,len(labels)),
-                                 get_color(0,offset,len(labels)))
-			cv2.rectangle(imgcv,
-				(left, top), (right, bot),
-				color, thick)
-                        font = cv2.FONT_HERSHEY_SIMPLEX
-                        scale = 0.65
-                        thickness = 1
-                        size=cv2.getTextSize(mess, font, scale, thickness)
-                        cv2.rectangle(im, (left-2,top-size[0][1]-4), (left+size[0][0]+4,top), color, -1)
-                        cv2.putText(im, mess, (left+2,top-2), font, scale, (0,0,0), thickness, cv2.LINE_AA)
-	return imgcv
+    if type(im) is not np.ndarray:
+    	imgcv = cv2.imread(im)
+    else: imgcv = im
+    h, w, _ = imgcv.shape
+    for b in boxes:
+        max_indx = np.argmax(b.probs)
+        max_prob = b.probs[max_indx]
+        label = 'object' * int(len(labels) < 2)
+        label += labels[max_indx] * int(len(labels)>1)
+        if max_prob > threshold:
+            left  = int ((b.x - b.w/2.) * w)
+            right = int ((b.x + b.w/2.) * w)
+            top   = int ((b.y - b.h/2.) * h)
+            bot   = int ((b.y + b.h/2.) * h)
+            if left  < 0    :  left = 0
+            if right > w - 1: right = w - 1
+            if top   < 0    :   top = 0
+            if bot   > h - 1:   bot = h - 1
+            thick = int((h+w)/300)
+            mess = '{}'.format(label)
+            offset = max_indx*123457 % len(labels)
+            color = (get_color(2,offset,len(labels)), get_color(1,offset,len(labels)), get_color(0,offset,len(labels)))
+            cv2.rectangle(imgcv, (left, top), (right, bot), color, thick)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            scale = 0.65
+            thickness = 1
+            size=cv2.getTextSize(mess, font, scale, thickness)
+            cv2.rectangle(im, (left-2,top-size[0][1]-4), (left+size[0][0]+4,top), color, -1)
+            cv2.putText(im, mess, (left+2,top-2), font, scale, (0,0,0), thickness, cv2.LINE_AA)
+    return imgcv
 
 
-""" 
+"""
    Utilities to convert Darknet models' weights into keras hdf5 format
    code adapted from https://github.com/sunshineatnoon/Darknet.keras
 """

@@ -3,7 +3,7 @@ import os
 # Keras imports
 from metrics.metrics import cce_flatt, IoU, YOLOLoss, YOLOMetrics
 from keras import backend as K
-from keras.utils.visualize_util import plot
+from keras.utils.vis_utils import plot_model
 
 # Classification models
 from models.lenet import build_lenet
@@ -48,7 +48,7 @@ class Model_Factory():
                             cf.dataset.n_channels)
             loss = 'categorical_crossentropy'
             metrics = ['accuracy']
-    
+
         elif cf.dataset.class_mode == 'detection':
             in_shape = (cf.dataset.n_channels,
                         cf.target_size_train[0],
@@ -181,7 +181,7 @@ class Model_Factory():
         # Show model structure
         if cf.show_model:
             model.summary()
-            plot(model, to_file=os.path.join(cf.savepath, 'model.png'))
+            plot_model(model, to_file=os.path.join(cf.savepath, 'model.png'))
 
         # Output the model
         print ('   Model: ' + cf.model_name)

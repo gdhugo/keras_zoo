@@ -183,7 +183,7 @@ class NdSoftmax(Layer):
         x = K.softmax(x)
         x = K.reshape(x, sh)
         x = K.permute_dimensions(
-            x, tuple(range(ch_idx) + [l_idx] + range(ch_idx, l_idx)))
+            x, tuple(list(range(ch_idx)) + [l_idx] + list(range(ch_idx, l_idx))))
         return x
 
 
