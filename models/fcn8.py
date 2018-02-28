@@ -4,7 +4,7 @@ from keras.layers import Input, Add, Activation
 from keras.layers.convolutional import Conv2D, MaxPooling2D, ZeroPadding2D, Conv2DTranspose, Cropping2D
 from keras.layers.core import Dropout
 from keras.regularizers import l2
-from keras.utils import plot_model
+
 
 # Custom layers import
 #from layers.ourlayers import (CropLayer2D, NdSoftmax)
@@ -139,7 +139,13 @@ def build_fcn8(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
 
     # Complete model
     model = Model(inputs=inputs, outputs=softmax_fcn8)
-    plot_model(model, to_file='model.png', show_shapes=True)
+    try:
+        import pydot
+    except:
+        print('unable to plot model. Install pydot to plot model.')
+    else:
+        from keras.utils import plot_model
+        plot_model(model, to_file='model.png', show_shapes=True)
 
     # Load pretrained Model
     if path_weights:
