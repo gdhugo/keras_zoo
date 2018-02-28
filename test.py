@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 
 # Import tools
 from models.fcn8 import build_fcn8
-from metrics.metrics import cce_flatt, jaccard_distance, categorical_crossentropy, IoU
+from metrics.metrics import cce_flatt, IoU
 from keras.optimizers import (RMSprop, Adam, SGD)
 
 # Entry point of the script
