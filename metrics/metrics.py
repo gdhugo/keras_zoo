@@ -78,31 +78,6 @@ def jaccard_distance(y_true, y_pred, smooth=100):
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
     return (1 - jac) * smooth
 
-def categorical_crossentropy(y_true, y_pred):
-    '''Expects a binary class matrix instead of a vector of scalar classes.
-    '''
-    if dim_ordering == 'th':
-        y_pred = K.permute_dimensions(y_pred, (0, 2, 3, 1))
-    shp_y_pred = K.shape(y_pred)
-    y_pred = K.reshape(y_pred, (shp_y_pred[0]*shp_y_pred[1]*shp_y_pred[2],
-                       shp_y_pred[3]))  # go back to b01,c
-    # shp_y_true = K.shape(y_true)
-
-    if dim_ordering == 'th':
-        y_true = K.cast(K.flatten(y_true), 'int32')  # b,01 -> b01
-    else:
-        y_true = K.cast(K.flatten(y_true), 'int32')  # b,01 -> b01
-
-    if dim_ordering == 'th':
-        y_true = T.extra_ops.to_one_hot(y_true, nb_class=y_pred.shape[-1])
-    else:
-        y_true = tf.one_hot(y_true, K.shape(y_pred)[-1], on_value=1, off_value=0, axis=None, dtype=None, name=None)
-        y_true = K.cast(y_true, 'float32')  # b,01 -> b01
-    out = K.categorical_crossentropy(y_pred, y_true)
-
-    return K.mean(out)  # b01 -> b,01
-
-
 def IoU(n_classes, void_labels):
     def IoU_flatt(y_true, y_pred):
         '''Expects a binary class matrix instead of a vector of scalar classes.
