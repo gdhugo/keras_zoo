@@ -145,7 +145,7 @@ def build_fcn8(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
         print('unable to plot model. Install pydot to plot model.')
     else:
         from keras.utils import plot_model
-        plot_model(model, to_file='model.png', show_shapes=True)
+        #plot_model(model, to_file='model.png', show_shapes=True)
 
     # Load pretrained Model
     if path_weights:
