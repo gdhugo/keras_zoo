@@ -77,7 +77,7 @@ if __name__ == "__main__":
         model = build_fcn8(in_shape, n_classes, 0.)
         model.compile(loss=loss, metrics=metrics, optimizer=opt)
 
-        model.fit(x_train, y_train, epochs=50, batch_size=16)
+        model.fit(x_train, y_train, epochs=50, batch_size=32)
 
         score = model.evaluate(x_test, y_test) #, batch_size=128)
         y_pred = model.predict(x_test)
@@ -85,8 +85,14 @@ if __name__ == "__main__":
         print(score)
 
         for sample in range(y_test.shape[0]):
+            print('sample: ' + str(sample))
+            print('actual:')
             print(y_test[sample,:,:,0])
+            print('predicted:')
             print(y_pred[sample,:,:,0])
+
+        np.save('y_test.numpy',y_test)
+        np.save('y_pred.numpy',y_pred)
 
         if(not args.nodisplay):
             plt.subplot(1,2,1)
