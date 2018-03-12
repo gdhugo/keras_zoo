@@ -19,7 +19,7 @@ from argparse import ArgumentParser
 from models.fcn8 import build_fcn8
 from metrics.metrics import cce_flatt, IoU
 from keras.optimizers import (RMSprop, Nadam, SGD)
-import keras.preprocessing.image
+from keras.preprocessing.image import ImageDataGenerator
 
 def make_data(x_size, y_size, n_channels, n_samples):
     """ makes testing and training data from scratch
