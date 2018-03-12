@@ -86,7 +86,7 @@ if __name__ == "__main__":
     if(not args.nomodel):
         loss = cce_flatt(void_class, None)
         metrics = [IoU(n_classes, void_class)]
-        opt = RMSprop(lr=0.01, rho=0.9, epsilon=1e-8, clipnorm=10)
+        opt = RMSprop(lr=0.001, clipnorm=10)
 
         model = build_fcn8(in_shape, n_classes, 0.)
         model.compile(loss=loss, metrics=metrics, optimizer=opt)
@@ -116,8 +116,8 @@ if __name__ == "__main__":
             plt.imshow(y_pred[-1,:,:,0])
             plt.show()
     else:
-        y_test = np.load('y_test.numpy.npy')
-        y_pred = np.load('y_pred.numpy.npy')
+        y_test = np.load('../y_test.numpy.npy')
+        y_pred = np.load('../y_pred.numpy.npy')
         plt.subplot(1,3,1)
         plt.imshow(y_test[0,:,:,0])
         plt.subplot(1,3,2)
