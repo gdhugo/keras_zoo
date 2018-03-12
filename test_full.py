@@ -239,7 +239,8 @@ if __name__ == "__main__":
                             nb_epoch=1000,
                             steps_per_epoch=5,
                             callbacks=cb,
-                            validation_data=valid_generator)
+                            validation_data=valid_generator,
+                            validation_steps=5)
 
         # testing
         test_gen_args = dict(samplewise_center=True,
