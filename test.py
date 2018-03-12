@@ -60,6 +60,7 @@ if __name__ == "__main__":
     n_channels = 1
     n_samples = 200
     void_class = [-1]
+    n_classes = 2
     (x_train, y_train, x_test, y_test, x_valid, y_valid) = make_data(x_size, y_size, n_channels, n_samples)
     print(x_train.shape)
     print(y_train.shape)
