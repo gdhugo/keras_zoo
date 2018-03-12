@@ -11,6 +11,7 @@ from argparse import ArgumentParser
 from models.fcn8 import build_fcn8
 from metrics.metrics import cce_flatt, IoU
 from keras.optimizers import (RMSprop, Adam, SGD)
+from keras.callbacks import EarlyStopping
 
 def make_data(x_size, y_size, n_channels, n_samples):
     """ makes testing and training data from scratch
@@ -87,7 +88,8 @@ if __name__ == "__main__":
         model = build_fcn8(in_shape, n_classes, 0.)
         model.compile(loss=loss, metrics=metrics, optimizer=opt)
 
-        model.fit(x_train, y_train, epochs=100, batch_size=16)
+        cb = EarlyStopping(monitor='val_loss', min_delta = 0.0001, patience=2)
+        model.fit(x_train, y_train, epochs=100, batch_size=16, callbacks=cb, validation_data=(x_valid,y_valid))
 
         score = model.evaluate(x_test, y_test) #, batch_size=128)
         y_pred = model.predict(x_test)
