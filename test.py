@@ -92,7 +92,7 @@ if __name__ == "__main__":
         model.compile(loss=loss, metrics=metrics, optimizer=opt)
 
         cb = [EarlyStopping(monitor='val_loss', min_delta = 0.0001, patience=2)]
-        model.fit(x_train, y_train, epochs=100, batch_size=16, callbacks=cb, validation_data=(x_valid,y_valid))
+        model.fit(x_train, y_train, epochs=1000, batch_size=16, callbacks=cb, validation_data=(x_valid,y_valid))
 
         score = model.evaluate(x_test, y_test) #, batch_size=128)
         y_pred = model.predict(x_test)
