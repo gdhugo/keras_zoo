@@ -20,6 +20,7 @@ from models.fcn8 import build_fcn8
 from metrics.metrics import cce_flatt, IoU
 from keras.optimizers import (RMSprop, Nadam, SGD)
 from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import EarlyStopping
 
 def make_data(x_size, y_size, n_channels, n_samples):
     """ makes testing and training data from scratch
@@ -156,13 +157,13 @@ if __name__ == "__main__":
             print("Error:", sys.exc_info()[0])
             exit()
 
-    # subdirs
+    # subdirs. must be 'base/test/images/data' for flow_from_directory to work.
     subdirs = ['test', 'train', 'valid']
     subsubdirs = ['images','masks']
 
     for subdir in subdirs:
         for subsubdir in subsubdirs:
-            new_path = join(data_dir, subdir, subsubdir)
+            new_path = join(data_dir, subdir, subsubdir, 'data')
             if not path.exists(new_path):
                 try:
                     makedirs(new_path)
@@ -171,12 +172,12 @@ if __name__ == "__main__":
                     exit()
 
     # write out data
-    write_data(x_train, join(data_dir, 'train', 'images'))
-    write_data(y_train, join(data_dir, 'train', 'masks'))
-    write_data(x_test, join(data_dir, 'test', 'images'))
-    write_data(y_test, join(data_dir, 'test', 'masks'))
-    write_data(x_valid, join(data_dir, 'valid', 'images'))
-    write_data(y_valid, join(data_dir, 'valid', 'masks'))
+    write_data(x_train, join(data_dir, 'train', 'images', 'data'))
+    write_data(y_train, join(data_dir, 'train', 'masks', 'data'))
+    write_data(x_test, join(data_dir, 'test', 'images', 'data'))
+    write_data(y_test, join(data_dir, 'test', 'masks', 'data'))
+    write_data(x_valid, join(data_dir, 'valid', 'images', 'data'))
+    write_data(y_valid, join(data_dir, 'valid', 'masks', 'data'))
 
     # write out config
     write_config(x_size, y_size, data_dir)
