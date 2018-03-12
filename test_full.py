@@ -16,9 +16,10 @@ from argparse import ArgumentParser
 #matplotlib.use('Agg')  # Faster plot
 
 # Import tools
-#from models.fcn8 import build_fcn8
-#from metrics.metrics import cce_flatt, IoU
-#from keras.optimizers import (RMSprop, Adam, SGD)
+from models.fcn8 import build_fcn8
+from metrics.metrics import cce_flatt, IoU
+from keras.optimizers import (RMSprop, Adam, SGD)
+import keras.preprocessing.image
 
 def make_data(x_size, y_size, n_channels, n_samples):
     """ makes testing and training data from scratch
@@ -104,7 +105,7 @@ def write_config(x_size, y_size, write_path):
 if __name__ == "__main__":
 
     parser = ArgumentParser(description='Model testing')
-    #parser.add_argument('-m', '--nomodel', action='store_true', help='Do not perform modeling?')
+    parser.add_argument('-m', '--nomodel', action='store_true', help='Do not perform modeling?')
     parser.add_argument('-p', '--preprocess', action='store_true', help='Preprocess by pixelwise mean / std centering')
     #parser.add_argument('-d', '--nodisplay', action='store_true', help='Turn off visual display')
     parser.add_argument('-s', '--shared_path', type=str, default='/home/ghugo/data', help='Shared path')
@@ -176,3 +177,92 @@ if __name__ == "__main__":
 
     # write out config
     write_config(x_size, y_size, data_dir)
+
+    if(not args.nomodel):
+        loss = cce_flatt(void_class, None)
+        metrics = [IoU(n_classes, void_class)]
+        #opt = RMSprop(lr=0.001, clipnorm=10)
+        opt = Nadam(lr=0.002)
+
+        model = build_fcn8(in_shape, n_classes, 0.)
+        model.compile(loss=loss, metrics=metrics, optimizer=opt)
+
+        # data
+        train_gen_args = dict(samplewise_center=True,
+                            samplewise_std_normalization=True,
+                            width_shift_range=0.1,
+                            height_shift_range=0.1,
+                            zoom_range=0.2,
+                            batch_size=16)
+        train_image_datagen = ImageDataGenerator(**train_gen_args)
+        train_mask_datagen = ImageDataGenerator(**train_gen_args)
+
+        seed = 1
+        train_image_generator = train_image_datagen.flow_from_directory(
+            join(data_dir,'train','images'),
+            class_mode=None,
+            seed=seed)
+
+        train_mask_generator = train_mask_datagen.flow_from_directory(
+            join(data_dir,'train','masks'),
+            class_mode=None,
+            seed=seed)
+        train_generator = zip(train_image_generator, train_mask_generator)
+
+        valid_gen_args = dict(samplewise_center=True,
+                              samplewise_std_normalization=True,
+                              batch_size=16)
+        valid_image_datagen = ImageDataGenerator(**valid_gen_args)
+        valid_mask_datagen = ImageDataGenerator(**valid_gen_args)
+
+        seed = 1
+        valid_image_generator = valid_image_datagen.flow_from_directory(
+            join(data_dir,'valid','images'),
+            class_mode=None,
+            seed=seed)
+
+        valid_mask_generator = valid_mask_datagen.flow_from_directory(
+            join(data_dir,'valid','masks'),
+            class_mode=None,
+            seed=seed)
+        valid_generator = zip(valid_image_generator, valid_mask_generator)
+
+        # modeling
+        cb = [EarlyStopping(monitor='train_loss', min_delta = 0.0001, patience=2)]
+        model.fit_generator(train_generator, epochs=1000, batch_size=16, callbacks=cb, validation_data=validation_generator)
+
+        # testing
+        test_gen_args = dict(samplewise_center=True,
+                             samplewise_std_normalization=True,
+                             batch_size=1)
+        test_image_datagen = ImageDataGenerator(**test_gen_args)
+        test_mask_datagen = ImageDataGenerator(**test_gen_args)
+
+        seed = 1
+        test_image_generator = test_image_datagen.flow_from_directory(
+            join(data_dir,'test','images'),
+            class_mode=None,
+            seed=seed)
+
+        filenames = test_image_generator.filenames
+        nb_samples = len(filenames)
+
+        test_mask_generator = test_mask_datagen.flow_from_directory(
+            join(data_dir,'test','masks'),
+            class_mode=None,
+            seed=seed)
+        test_generator = zip(test_image_generator, test_mask_generator)
+
+        score = model.evaluate_generator(test_generator, steps=nb_samples) #, batch_size=128)
+        y_pred = model.predict_generator(test_image_generator, steps=nb_samples)
+
+        print(score)
+        print(y_pred.shape)
+
+        # for sample in range(y_test.shape[0]):
+        #     print('sample: ' + str(sample))
+        #     print('predicted:')
+        #     print(y_pred[sample,:,:,0])
+        #
+        # np.save('y_test.numpy',y_test)
+        # np.save('y_pred.numpy',y_pred)
