@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 # Import tools
 from models.fcn8 import build_fcn8
 from metrics.metrics import cce_flatt, IoU
-from keras.optimizers import (RMSprop, Adam, SGD)
+from keras.optimizers import (RMSprop, Nadam, SGD)
 from keras.callbacks import EarlyStopping
 
 def make_data(x_size, y_size, n_channels, n_samples):
@@ -86,7 +86,8 @@ if __name__ == "__main__":
     if(not args.nomodel):
         loss = cce_flatt(void_class, None)
         metrics = [IoU(n_classes, void_class)]
-        opt = RMSprop(lr=0.001, clipnorm=10)
+        #opt = RMSprop(lr=0.001, clipnorm=10)
+        opt = Nadam(lr=0.002)
 
         model = build_fcn8(in_shape, n_classes, 0.)
         model.compile(loss=loss, metrics=metrics, optimizer=opt)
