@@ -77,7 +77,7 @@ if __name__ == "__main__":
         model = build_fcn8(in_shape, n_classes, 0.)
         model.compile(loss=loss, metrics=metrics, optimizer=opt)
 
-        model.fit(x_train, y_train, epochs=50, batch_size=16)
+        model.fit(x_train, y_train, epochs=1000, batch_size=16)
 
         score = model.evaluate(x_test, y_test) #, batch_size=128)
         y_pred = model.predict(x_test)
