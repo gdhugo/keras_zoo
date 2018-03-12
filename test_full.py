@@ -208,7 +208,7 @@ if __name__ == "__main__":
                                      zoom_range=[0.1, 0.5],
                                      zoom_maintain_shape=True,
                                      crop_mode='random',
-                                     crop_size=target_size,
+                                     crop_size=(32,32),
                                      # pad_size=(505, 505),
                                      rotation_range=0.,
                                      shear_range=0,
