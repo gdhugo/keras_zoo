@@ -237,7 +237,7 @@ if __name__ == "__main__":
         cb = [EarlyStopping(monitor='train_loss', min_delta = 0.0001, patience=4)]
         model.fit_generator(train_generator,
                             nb_epoch=1000,
-                            steps_per_epoch=5
+                            steps_per_epoch=5,
                             callbacks=cb,
                             validation_data=valid_generator)
 
