@@ -292,7 +292,7 @@ if __name__ == "__main__":
                                 label_dir=val_label_dir, label_suffix='.png',classes=2,
                                 target_size=(32,32), color_mode='grayscale',
                                 batch_size=16, shuffle=False),
-                            nb_val_samples = 5)
+                            validation_steps = 5)
 
         # # testing
         # test_gen_args = dict(samplewise_center=True,
