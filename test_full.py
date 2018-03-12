@@ -195,8 +195,7 @@ if __name__ == "__main__":
                             samplewise_std_normalization=True,
                             width_shift_range=0.1,
                             height_shift_range=0.1,
-                            zoom_range=0.2,
-                            batch_size=16)
+                            zoom_range=0.2)
         train_image_datagen = ImageDataGenerator(**train_gen_args)
         train_mask_datagen = ImageDataGenerator(**train_gen_args)
 
@@ -204,17 +203,18 @@ if __name__ == "__main__":
         train_image_generator = train_image_datagen.flow_from_directory(
             join(data_dir,'train','images'),
             class_mode=None,
-            seed=seed)
+            seed=seed,
+            batch_size=16)
 
         train_mask_generator = train_mask_datagen.flow_from_directory(
             join(data_dir,'train','masks'),
             class_mode=None,
-            seed=seed)
+            seed=seed,
+            batch_size=16)
         train_generator = zip(train_image_generator, train_mask_generator)
 
         valid_gen_args = dict(samplewise_center=True,
-                              samplewise_std_normalization=True,
-                              batch_size=16)
+                              samplewise_std_normalization=True)
         valid_image_datagen = ImageDataGenerator(**valid_gen_args)
         valid_mask_datagen = ImageDataGenerator(**valid_gen_args)
 
@@ -222,12 +222,14 @@ if __name__ == "__main__":
         valid_image_generator = valid_image_datagen.flow_from_directory(
             join(data_dir,'valid','images'),
             class_mode=None,
-            seed=seed)
+            seed=seed,
+            batch_size=16)
 
         valid_mask_generator = valid_mask_datagen.flow_from_directory(
             join(data_dir,'valid','masks'),
             class_mode=None,
-            seed=seed)
+            seed=seed,
+            batch_size=16)
         valid_generator = zip(valid_image_generator, valid_mask_generator)
 
         # modeling
@@ -236,8 +238,7 @@ if __name__ == "__main__":
 
         # testing
         test_gen_args = dict(samplewise_center=True,
-                             samplewise_std_normalization=True,
-                             batch_size=1)
+                             samplewise_std_normalization=True)
         test_image_datagen = ImageDataGenerator(**test_gen_args)
         test_mask_datagen = ImageDataGenerator(**test_gen_args)
 
@@ -245,7 +246,8 @@ if __name__ == "__main__":
         test_image_generator = test_image_datagen.flow_from_directory(
             join(data_dir,'test','images'),
             class_mode=None,
-            seed=seed)
+            seed=seed,
+            batch_size=1)
 
         filenames = test_image_generator.filenames
         nb_samples = len(filenames)
