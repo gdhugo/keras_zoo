@@ -29,7 +29,7 @@ def make_data(x_size, y_size, n_channels, n_samples):
     """
     in_shape = (x_size, y_size, n_channels)
     x = np.zeros((n_samples, x_size, y_size, n_channels))
-    y = np.zeros((n_samples, x_size, y_size, n_channels))
+    y = np.ones((n_samples, x_size, y_size, n_channels))
     n_classes = 2
     void_class = [-1]
 
@@ -43,7 +43,7 @@ def make_data(x_size, y_size, n_channels, n_samples):
         box_slice = np.zeros(in_shape)
         box_slice[x_box_starts[sample]:x_box_starts[sample]+x_box_size,y_box_starts[sample]:y_box_starts[sample]+y_box_size,:] = 1.
 
-        y[sample,:,:,:] = box_slice
+        y[sample,:,:,:] = box_slice * 2.
         x[sample,:,:,:] = box_slice * 2. + noise_data[sample,:,:,:] + 0.05
         x[sample,:,:,:] = x[sample,:,:,:] / 2.10 # normalize [0,1]
 
