@@ -56,7 +56,7 @@ def make_data(x_size, y_size, n_channels, n_samples):
     y_test = y[151:,:,:,:]
     return x_train, y_train, x_test, y_test, x_valid, y_valid
 
-def write_data(data, write_path, normalize=False):
+def write_data(data, write_path, normalize=True):
     """ write out data as PNG
     """
     # check n_channels
