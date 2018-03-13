@@ -267,7 +267,7 @@ if __name__ == "__main__":
         # valid_generator = zip(valid_image_generator, valid_mask_generator)
         #
         # # modeling
-        cb = [EarlyStopping(monitor='val_loss', min_delta = 0.0001, patience=3)]
+        cb = [EarlyStopping(monitor='val_loss', min_delta = 0.001, patience=3)]
         # model.fit_generator(train_generator,
         #                     epochs=1000,
         #                     steps_per_epoch=5,
@@ -297,6 +297,26 @@ if __name__ == "__main__":
                             validation_steps = 5)
 
         # # testing
+        test_file_path = join(data_dir,'test','test.txt')
+        test_data_dir = join(data_dir,'test','images')
+        test_label_dir = join(data_dir,'test','masks')
+        test_datagen = SegDataGenerator(samplewise_center=True,
+                                        samplewise_std_normalization=True)
+        test_image_generator = test_datagen.flow_from_directory(
+                                        file_path=test_file_path, data_dir=test_data_dir, data_suffix='.png',
+                                        label_dir=test_label_dir, label_suffix='.png',classes=2,
+                                        target_size=(32,32), color_mode='grayscale',
+                                        batch_size=1, shuffle=False, class_mode=None)
+        test_data_generator = test_datagen.flow_from_directory(
+                                        file_path=test_file_path, data_dir=test_data_dir, data_suffix='.png',
+                                        label_dir=test_label_dir, label_suffix='.png',classes=2,
+                                        target_size=(32,32), color_mode='grayscale',
+                                        batch_size=1, shuffle=False)
+        score = model.evaluate_generator(test_data_generator, steps=nb_samples) #, batch_size=128)
+        y_pred = model.predict_generator(test_image_generator, steps=nb_samples)
+
+        print(score)
+        print(y_pred.shape)
         # test_gen_args = dict(samplewise_center=True,
         #                      samplewise_std_normalization=True)
         # test_image_datagen = ImageDataGenerator(**test_gen_args)
