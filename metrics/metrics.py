@@ -121,6 +121,7 @@ def Mean_IoU(n_classes):
         with tf.control_dependencies([opt]):
             score = tf.identity(score)
         return score
+    return mean_iou
 
 def IoU(n_classes, void_labels):
     def IoU_flatt(y_true, y_pred):
