@@ -312,6 +312,8 @@ if __name__ == "__main__":
                                         label_dir=test_label_dir, label_suffix='.png',classes=2,
                                         target_size=(32,32), color_mode='grayscale',
                                         batch_size=1, shuffle=False)
+        filenames = test_image_generator.data_files
+        nb_samples = len(filenames)
         score = model.evaluate_generator(test_data_generator, steps=nb_samples) #, batch_size=128)
         y_pred = model.predict_generator(test_image_generator, steps=nb_samples)
 
