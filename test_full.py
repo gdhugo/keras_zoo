@@ -34,8 +34,8 @@ def make_data(x_size, y_size, n_channels, n_samples):
     void_class = [-1]
 
     noise_data = (np.random.rand(n_samples, x_size, y_size, n_channels)-0.5) * 0.1 #[-0.05,0.05]
-    x_box_size = 10
-    y_box_size = 10
+    x_box_size = 20
+    y_box_size = 20
     x_box_starts = np.floor( np.random.rand(n_samples) * (x_size - x_box_size)).astype('int')
     y_box_starts = np.floor( np.random.rand(n_samples) * (y_size - y_box_size)).astype('int')
     for sample in range(n_samples):
