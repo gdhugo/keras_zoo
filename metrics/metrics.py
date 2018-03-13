@@ -151,14 +151,16 @@ def IoU(n_classes, void_labels):
                 y_true_i = K.cast(y_true_i, 'float32')
                 y_pred_i = K.cast(y_pred_i, 'float32')
                 I_i = K.sum(y_true_i * y_pred_i)
-                sum_I = sum_I + I_i
+                # sum_I = sum_I + I_i
+                sum_I = sum_I + I_i / U_i
             out['I'+str(i)] = I_i
             out['U'+str(i)] = U_i
 
         if dim_ordering == 'th':
             accuracy = K.sum(sum_I) / K.sum(not_void)
         else:
-            accuracy = K.sum(sum_I) / tf.reduce_sum(tf.cast(not_void, 'float32'))
+            # accuracy = K.sum(sum_I) / tf.reduce_sum(tf.cast(not_void, 'float32'))
+            accuracy = sum_I / n_classes 
         out['acc'] = accuracy
         return accuracy #out
     return IoU_flatt
