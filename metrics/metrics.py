@@ -163,7 +163,7 @@ def IoU(n_classes, void_labels):
             accuracy = K.sum(sum_I) / K.sum(not_void)
         else:
             # accuracy = K.sum(sum_I) / tf.reduce_sum(tf.cast(not_void, 'float32'))
-            accuracy = K.sum(sum_I) / K.sum(n_classes)
+            accuracy = K.sum(sum_I) / K.cast(K.sum(n_classes), 'float32')
         jac = (K.cast(K.sum(1.0), 'float32') - accuracy) * K.cast(K.sum(smooth), 'float32')
         return jac
         #out['acc'] = accuracy
