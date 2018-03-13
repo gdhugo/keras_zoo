@@ -197,7 +197,7 @@ if __name__ == "__main__":
         loss = cce_flatt(void_class, None)
         metrics = [IoU(n_classes, void_class)]
         #opt = RMSprop(lr=0.001, clipnorm=10)
-        opt = Nadam(lr=0.002)
+        opt = Nadam(lr=0.0002, clipnorm=10)
 
         model = build_fcn8(in_shape, n_classes, 0.)
         model.compile(loss=loss, metrics=metrics, optimizer=opt)
