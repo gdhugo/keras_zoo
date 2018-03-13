@@ -29,7 +29,7 @@ def make_data(x_size, y_size, n_channels, n_samples):
     """
     in_shape = (x_size, y_size, n_channels)
     x = np.zeros((n_samples, x_size, y_size, n_channels))
-    y = np.ones((n_samples, x_size, y_size, n_channels))
+    y = np.zeros((n_samples, x_size, y_size, n_channels))
     n_classes = 2
     void_class = [-1]
 
@@ -43,7 +43,7 @@ def make_data(x_size, y_size, n_channels, n_samples):
         box_slice = np.zeros(in_shape)
         box_slice[x_box_starts[sample]:x_box_starts[sample]+x_box_size,y_box_starts[sample]:y_box_starts[sample]+y_box_size,:] = 1.
 
-        y[sample,:,:,:] = box_slice * 2.
+        y[sample,:,:,:] = box_slice
         x[sample,:,:,:] = box_slice * 2. + noise_data[sample,:,:,:] + 0.05
         x[sample,:,:,:] = x[sample,:,:,:] / 2.10 # normalize [0,1]
 
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         print( np.max(x_test) )
         print( np.min(x_valid) )
         print( np.max(x_valid) )
-        barf
+
     # output test data
 
     # make directories
@@ -203,8 +203,8 @@ if __name__ == "__main__":
         model.compile(loss=loss, metrics=metrics, optimizer=opt)
 
         # data
-        train_datagen = SegDataGenerator(samplewise_center=True,
-                                     samplewise_std_normalization=True,
+        train_datagen = SegDataGenerator(#samplewise_center=True,
+                                     #samplewise_std_normalization=True,
                                      #zoom_range=[0.1, 0.5],
                                      #zoom_maintain_shape=True,
                                      #crop_mode='random',
@@ -215,8 +215,8 @@ if __name__ == "__main__":
                                      #horizontal_flip=True,
                                      fill_mode='constant',
                                      label_cval=255)
-        val_datagen = SegDataGenerator(samplewise_center=True,
-                                     samplewise_std_normalization=True)
+        val_datagen = SegDataGenerator()#samplewise_center=True,
+                                     #samplewise_std_normalization=True)
 
         train_file_path = join(data_dir,'train','train.txt')
         train_data_dir = join(data_dir,'train','images')
@@ -300,8 +300,8 @@ if __name__ == "__main__":
         test_file_path = join(data_dir,'test','test.txt')
         test_data_dir = join(data_dir,'test','images')
         test_label_dir = join(data_dir,'test','masks')
-        test_datagen = SegDataGenerator(samplewise_center=True,
-                                        samplewise_std_normalization=True)
+        test_datagen = SegDataGenerator()#samplewise_center=True,
+                                        #samplewise_std_normalization=True)
         test_image_generator = test_datagen.flow_from_directory(
                                         file_path=test_file_path, data_dir=test_data_dir, data_suffix='.png',
                                         label_dir=test_label_dir, label_suffix='.png',classes=2,
