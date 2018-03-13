@@ -17,7 +17,7 @@ from argparse import ArgumentParser
 
 # Import tools
 from models.fcn8 import build_fcn8
-from metrics.metrics import cce_flatt, IoU, Mean_IoU
+from metrics.metrics import cce_flatt, IoU
 from keras.optimizers import (RMSprop, Nadam, SGD)
 #from keras.preprocessing.image import ImageDataGenerator
 from tools.seg_data_generator import SegDataGenerator
@@ -195,7 +195,7 @@ if __name__ == "__main__":
 
     if(not args.nomodel):
         loss = cce_flatt(void_class, None)
-        metrics = [Mean_IoU(n_classes)]
+        metrics = [IoU(n_classes, void_class)]
         #opt = RMSprop(lr=0.001, clipnorm=10)
         opt = Nadam(lr=0.002)
 

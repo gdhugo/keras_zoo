@@ -1,7 +1,5 @@
 import numpy as np
 from keras import backend as K
-from keras.metrics import binary_crossentropy
-from keras.objectives import *
 dim_ordering = K.image_dim_ordering()
 if dim_ordering == 'th':
     import theano
@@ -9,7 +7,6 @@ if dim_ordering == 'th':
 else:
     import tensorflow as tf
     from tensorflow.python.framework import ops
-    from tensorflow.python.ops import control_flow_ops
 
 def cce_flatt(void_class, weights_class):
     def categorical_crossentropy_flatt(y_true, y_pred):
@@ -114,26 +111,6 @@ def jaccard_distance(y_true, y_pred, smooth=100):
     sum_ = K.sum(K.abs(y_true) + K.abs(y_pred), axis=-1)
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
     return (1 - jac) * smooth
-
-def Mean_IoU(classes):
-    def mean_iou(y_true, y_pred):
-        mean_iou, op = tf.metrics.mean_iou(y_true, y_pred, classes)
-        return mean_iou
-    _initialize_variables()
-    return mean_iou
-
-def _initialize_variables():
-    """Utility to initialize uninitialized variables on the fly.
-    """
-    variables = tf.local_variables()
-    uninitialized_variables = []
-    for v in variables:
-        if not hasattr(v, '_keras_initialized') or not v._keras_initialized:
-            uninitialized_variables.append(v)
-            v._keras_initialized = True
-    if uninitialized_variables:
-        sess = K.get_session()
-        sess.run(tf.variables_initializer(uninitialized_variables))
 
 def IoU(n_classes, void_labels):
     def IoU_flatt(y_true, y_pred):
