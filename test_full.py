@@ -194,7 +194,7 @@ if __name__ == "__main__":
     write_config(x_size, y_size, data_dir)
 
     if(not args.nomodel):
-        loss = softmax_sparse_crossentropy_ignoring_last_label #cce_flatt(void_class, None)
+        loss = cce_flatt(void_class, None)
         metrics = [IoU(n_classes, void_class)]
         #opt = RMSprop(lr=0.001, clipnorm=10)
         opt = Nadam(lr=0.002)
