@@ -352,4 +352,6 @@ if __name__ == "__main__":
         #     print(y_pred[sample,:,:,0])
         #
         # np.save('y_test.numpy',y_test)
-        # np.save('y_pred.numpy',y_pred)
+
+        # save data
+        np.save('y_pred',y_pred)
