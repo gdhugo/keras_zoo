@@ -116,7 +116,7 @@ def IoU(n_classes, void_labels):
     def IoU_flatt(y_true, y_pred):
         '''Expects a binary class matrix instead of a vector of scalar classes.
         '''
-        smooth = 100
+        smooth = 100.0
         if dim_ordering == 'th':
             y_pred = K.permute_dimensions(y_pred, (0, 2, 3, 1))
         shp_y_pred = K.shape(y_pred)
