@@ -17,7 +17,7 @@ from argparse import ArgumentParser
 
 # Import tools
 from models.fcn8 import build_fcn8
-from metrics.metrics import cce_flatt, IoU, Mean_IoU, softmax_sparse_crossentropy_ignoring_last_label
+from metrics.metrics import cce_flatt, IoU, Mean_IoU
 from keras.optimizers import (RMSprop, Nadam, SGD)
 #from keras.preprocessing.image import ImageDataGenerator
 from tools.seg_data_generator import SegDataGenerator
