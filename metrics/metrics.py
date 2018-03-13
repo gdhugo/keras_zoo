@@ -148,11 +148,13 @@ def IoU(n_classes, void_labels):
                 # U = T.set_subtensor(U[i], U_i)
                 sum_I = sum_I + I_i
             else:
-                U_i = K.sum(K.cast(tf.logical_and(tf.logical_or(y_true_i, y_pred_i), not_void), 'float32')) + K.sum(smooth)
+                U_i = K.sum(K.cast(tf.logical_and(tf.logical_or(y_true_i, y_pred_i), not_void), 'float32'))
                 y_true_i = K.cast(y_true_i, 'float32')
                 y_pred_i = K.cast(y_pred_i, 'float32')
-                I_i = K.sum(y_true_i * y_pred_i) + K.sum(smooth)
+                I_i = K.sum(y_true_i * y_pred_i)
                 # sum_I = sum_I + I_i
+                I_i = I_i + K.cast(K.sum(smooth), 'float32')
+                U_i = U_i + K.cast(K.sum(smooth), 'float32')
                 sum_I = sum_I + I_i / U_i
             #out['I'+str(i)] = I_i
             #out['U'+str(i)] = U_i
@@ -162,7 +164,7 @@ def IoU(n_classes, void_labels):
         else:
             # accuracy = K.sum(sum_I) / tf.reduce_sum(tf.cast(not_void, 'float32'))
             accuracy = K.sum(sum_I) / K.sum(n_classes)
-        jac = (K.sum(1) - accuracy) * K.sum(smooth)
+        jac = (K.cast(K.sum(1.0), 'float32') - accuracy) * K.cast(K.sum(smooth), 'float32')
         return jac
         #out['acc'] = accuracy
         # return accuracy #out
