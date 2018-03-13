@@ -116,6 +116,7 @@ def IoU(n_classes, void_labels):
     def IoU_flatt(y_true, y_pred):
         '''Expects a binary class matrix instead of a vector of scalar classes.
         '''
+        smooth = 100
         if dim_ordering == 'th':
             y_pred = K.permute_dimensions(y_pred, (0, 2, 3, 1))
         shp_y_pred = K.shape(y_pred)
@@ -135,7 +136,7 @@ def IoU(n_classes, void_labels):
 
         sum_I = K.zeros((1,), dtype='float32')
 
-        out = {}
+        #out = {}
         for i in range(n_classes):
             y_true_i = K.equal(y_true, i)
             y_pred_i = K.equal(y_pred, i)
@@ -147,22 +148,24 @@ def IoU(n_classes, void_labels):
                 # U = T.set_subtensor(U[i], U_i)
                 sum_I = sum_I + I_i
             else:
-                U_i = K.sum(K.cast(tf.logical_and(tf.logical_or(y_true_i, y_pred_i), not_void), 'float32'))
+                U_i = K.sum(K.cast(tf.logical_and(tf.logical_or(y_true_i, y_pred_i), not_void), 'float32')) + K.sum(smooth)
                 y_true_i = K.cast(y_true_i, 'float32')
                 y_pred_i = K.cast(y_pred_i, 'float32')
-                I_i = K.sum(y_true_i * y_pred_i)
+                I_i = K.sum(y_true_i * y_pred_i) + K.sum(smooth)
                 # sum_I = sum_I + I_i
                 sum_I = sum_I + I_i / U_i
-            out['I'+str(i)] = I_i
-            out['U'+str(i)] = U_i
+            #out['I'+str(i)] = I_i
+            #out['U'+str(i)] = U_i
 
         if dim_ordering == 'th':
             accuracy = K.sum(sum_I) / K.sum(not_void)
         else:
             # accuracy = K.sum(sum_I) / tf.reduce_sum(tf.cast(not_void, 'float32'))
-            accuracy = sum_I / n_classes 
-        out['acc'] = accuracy
-        return accuracy #out
+            accuracy = K.sum(sum_I) / K.sum(n_classes)
+        jac = (K.sum(1) - accuracy) * K.sum(smooth)
+        return jac
+        #out['acc'] = accuracy
+        # return accuracy #out
     return IoU_flatt
 
 
