@@ -141,9 +141,9 @@ if __name__ == "__main__":
         x_train -= x_train_mean
         x_test -= x_train_mean
         x_valid -= x_train_mean
-        x_train /= (x_train_std + 1e-7)
-        x_test /= (x_train_std + 1e-7)
-        x_valid /= (x_train_std + 1e-7)
+        #x_train /= (x_train_std + 1e-7)
+        #x_test /= (x_train_std + 1e-7)
+        #x_valid /= (x_train_std + 1e-7)
         print( np.min(x_train) )
         print( np.max(x_train) )
         print( np.min(x_test) )
