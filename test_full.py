@@ -267,7 +267,7 @@ if __name__ == "__main__":
         # valid_generator = zip(valid_image_generator, valid_mask_generator)
         #
         # # modeling
-        cb = [EarlyStopping(monitor='train_loss', min_delta = 0.0001, patience=4)]
+        cb = [EarlyStopping(monitor='val_loss', min_delta = 0.0001, patience=3)]
         # model.fit_generator(train_generator,
         #                     epochs=1000,
         #                     steps_per_epoch=5,
