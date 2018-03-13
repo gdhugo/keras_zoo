@@ -194,8 +194,7 @@ if __name__ == "__main__":
     write_config(x_size, y_size, data_dir)
 
     if(not args.nomodel):
-        #loss = cce_flatt(void_class, None)
-        loss = IoU(n_classes, void_class)
+        loss = cce_flatt(void_class, None)
         metrics = [IoU(n_classes, void_class)]
         #opt = RMSprop(lr=0.001, clipnorm=10)
         opt = Nadam(lr=0.002)
