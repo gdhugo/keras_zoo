@@ -1,5 +1,7 @@
 import numpy as np
 from keras import backend as K
+from keras.metrics import binary_crossentropy
+from keras.objectives import *
 dim_ordering = K.image_dim_ordering()
 if dim_ordering == 'th':
     import theano
@@ -73,10 +75,60 @@ def jaccard_distance(y_true, y_pred, smooth=100):
     IEEE Trans. Pattern Anal. Mach. Intell.. 26. . 10.5244/C.27.32.
     https://en.wikipedia.org/wiki/Jaccard_index
     """
+    '''Expects a binary class matrix instead of a vector of scalar classes.
+    '''
+    if dim_ordering == 'th':
+        y_pred = K.permute_dimensions(y_pred, (0, 2, 3, 1))
+    shp_y_pred = K.shape(y_pred)
+    y_pred = K.reshape(y_pred, (shp_y_pred[0]*shp_y_pred[1]*shp_y_pred[2],
+                       shp_y_pred[3]))  # go back to b01,c
+    # shp_y_true = K.shape(y_true)
+
+    if dim_ordering == 'th':
+        y_true = K.cast(K.flatten(y_true), 'int32')  # b,01 -> b01
+    else:
+        y_true = K.cast(K.flatten(y_true), 'int32')  # b,01 -> b01
+
+    # remove void classes from cross_entropy
+    if len(void_class):
+        for i in range(len(void_class)):
+            # get idx of non void classes and remove void classes
+            # from y_true and y_pred
+            idxs = K.not_equal(y_true, void_class[i])
+            if dim_ordering == 'th':
+                idxs = idxs.nonzero()
+                y_pred = y_pred[idxs]
+                y_true = y_true[idxs]
+            else:
+                y_pred = tf.boolean_mask(y_pred, idxs)
+                y_true = tf.boolean_mask(y_true, idxs)
+
+    if dim_ordering == 'th':
+        y_true = T.extra_ops.to_one_hot(y_true, nb_class=y_pred.shape[-1])
+    else:
+        y_true = tf.one_hot(y_true, K.shape(y_pred)[-1], on_value=1, off_value=0, axis=None, dtype=None, name=None)
+        y_true = K.cast(y_true, 'float32')  # b,01 -> b01
+
     intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
     sum_ = K.sum(K.abs(y_true) + K.abs(y_pred), axis=-1)
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
     return (1 - jac) * smooth
+
+# Softmax cross-entropy loss function for pascal voc segmentation
+# and models which do not perform softmax.
+# tensorflow only
+def softmax_sparse_crossentropy_ignoring_last_label(y_true, y_pred):
+    y_pred = K.reshape(y_pred, (-1, K.int_shape(y_pred)[-1]))
+    log_softmax = tf.nn.log_softmax(y_pred)
+
+    y_true = K.one_hot(tf.to_int32(K.flatten(y_true)), K.int_shape(y_pred)[-1]+1)
+    unpacked = tf.unstack(y_true, axis=-1)
+    y_true = tf.stack(unpacked[:-1], axis=-1)
+
+    cross_entropy = -K.sum(y_true * log_softmax, axis=1)
+    cross_entropy_mean = K.mean(cross_entropy)
+
+    return cross_entropy_mean
 
 def IoU(n_classes, void_labels):
     def IoU_flatt(y_true, y_pred):

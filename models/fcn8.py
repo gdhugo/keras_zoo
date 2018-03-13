@@ -134,7 +134,7 @@ def build_fcn8(img_shape=(3, None, None), nclasses=8, l2_reg=0.,
     # Softmax
     # softmax_fcn8 = Activation('softmax')(score)
     softmax_fcn8 = Conv2D(nclasses, (1, 1), kernel_initializer=init,
-                                activation='softmax', padding='same', strides=(1, 1), use_bias=False,
+                                activation='linear', padding='same', strides=(1, 1), use_bias=False,
                                 name='softmax_fcn8', kernel_regularizer=l2(l2_reg))(score) #NdSoftmax()(score)
 
     # Complete model

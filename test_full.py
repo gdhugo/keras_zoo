@@ -17,7 +17,7 @@ from argparse import ArgumentParser
 
 # Import tools
 from models.fcn8 import build_fcn8
-from metrics.metrics import cce_flatt, IoU
+from metrics.metrics import cce_flatt, IoU, softmax_sparse_crossentropy_ignoring_last_label
 from keras.optimizers import (RMSprop, Nadam, SGD)
 #from keras.preprocessing.image import ImageDataGenerator
 from tools.seg_data_generator import SegDataGenerator
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     write_config(x_size, y_size, data_dir)
 
     if(not args.nomodel):
-        loss = cce_flatt(void_class, None)
+        loss = softmax_sparse_crossentropy_ignoring_last_label #cce_flatt(void_class, None)
         metrics = [IoU(n_classes, void_class)]
         #opt = RMSprop(lr=0.001, clipnorm=10)
         opt = Nadam(lr=0.002)
