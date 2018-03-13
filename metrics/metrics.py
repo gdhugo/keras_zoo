@@ -114,21 +114,13 @@ def jaccard_distance(y_true, y_pred, smooth=100):
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
     return (1 - jac) * smooth
 
-# Softmax cross-entropy loss function for pascal voc segmentation
-# and models which do not perform softmax.
-# tensorflow only
-def softmax_sparse_crossentropy_ignoring_last_label(y_true, y_pred):
-    y_pred = K.reshape(y_pred, (-1, K.int_shape(y_pred)[-1]))
-    log_softmax = tf.nn.log_softmax(y_pred)
-
-    y_true = K.one_hot(tf.to_int32(K.flatten(y_true)), K.int_shape(y_pred)[-1]+1)
-    unpacked = tf.unstack(y_true, axis=-1)
-    y_true = tf.stack(unpacked[:-1], axis=-1)
-
-    cross_entropy = -K.sum(y_true * log_softmax, axis=1)
-    cross_entropy_mean = K.mean(cross_entropy)
-
-    return cross_entropy_mean
+def Mean_IoU(n_classes):
+    def mean_iou(y_true, y_pred):
+        score, opt = tf.metrics.mean_iou(y_true, y_pred, n_classes)
+        K.get_session().run(tf.local_variables_initializer())
+        with tf.control_dependencies([opt]):
+            score = tf.identity(score)
+        return score
 
 def IoU(n_classes, void_labels):
     def IoU_flatt(y_true, y_pred):
