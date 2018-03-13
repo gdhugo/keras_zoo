@@ -194,7 +194,8 @@ if __name__ == "__main__":
     write_config(x_size, y_size, data_dir)
 
     if(not args.nomodel):
-        loss = cce_flatt(void_class, None)
+        #loss = cce_flatt(void_class, None)
+        loss = IoU(n_classes, void_class)
         metrics = [IoU(n_classes, void_class)]
         #opt = RMSprop(lr=0.001, clipnorm=10)
         opt = Nadam(lr=0.002)
@@ -205,14 +206,14 @@ if __name__ == "__main__":
         # data
         train_datagen = SegDataGenerator(samplewise_center=True,
                                      samplewise_std_normalization=True,
-                                     zoom_range=[0.1, 0.5],
-                                     zoom_maintain_shape=True,
-                                     crop_mode='random',
-                                     crop_size=(32,32),
+                                     #zoom_range=[0.1, 0.5],
+                                     #zoom_maintain_shape=True,
+                                     #crop_mode='random',
+                                     #crop_size=(32,32),
                                      # pad_size=(505, 505),
-                                     rotation_range=0.,
-                                     shear_range=0,
-                                     horizontal_flip=True,
+                                     #rotation_range=0.,
+                                     #shear_range=0,
+                                     #horizontal_flip=True,
                                      fill_mode='constant',
                                      label_cval=255)
         val_datagen = SegDataGenerator(samplewise_center=True,
